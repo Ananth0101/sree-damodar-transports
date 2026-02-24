@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="90" fill="#065f46"/>
+  <!-- Truck body -->
+  <rect x="55" y="195" width="255" height="155" rx="14" fill="white" opacity="0.95"/>
+  <!-- Truck cab -->
+  <path d="M310 230 L310 350 L450 350 L450 285 L408 230 Z" fill="white" opacity="0.95"/>
+  <!-- Windshield -->
+  <path d="M318 240 L318 278 L442 278 L442 285 L402 240 Z" fill="#065f46" opacity="0.55"/>
+  <!-- Cargo stripes -->
+  <rect x="75" y="215" width="6" height="115" rx="3" fill="#065f46" opacity="0.15"/>
+  <rect x="107" y="215" width="6" height="115" rx="3" fill="#065f46" opacity="0.15"/>
+  <rect x="139" y="215" width="6" height="115" rx="3" fill="#065f46" opacity="0.15"/>
+  <rect x="171" y="215" width="6" height="115" rx="3" fill="#065f46" opacity="0.15"/>
+  <!-- SDT text on truck body -->
+  <text x="185" y="293" font-family="Arial Black, sans-serif" font-size="72" font-weight="900" fill="#065f46" opacity="0.9" text-anchor="middle">SDT</text>
+  <!-- Wheels -->
+  <circle cx="148" cy="365" r="38" fill="#34d399"/>
+  <circle cx="148" cy="365" r="20" fill="#065f46"/>
+  <circle cx="148" cy="365" r="8" fill="#34d399"/>
+  <circle cx="370" cy="365" r="38" fill="#34d399"/>
+  <circle cx="370" cy="365" r="20" fill="#065f46"/>
+  <circle cx="370" cy="365" r="8" fill="#34d399"/>
+  <!-- Road line -->
+  <rect x="30" y="400" width="452" height="8" rx="4" fill="white" opacity="0.2"/>
+</svg>

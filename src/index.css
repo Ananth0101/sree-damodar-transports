@@ -3,8 +3,6 @@
 @tailwind utilities;
 
 @layer base {
-  html { -webkit-tap-highlight-color: transparent; }
+  html { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
   body { @apply bg-stone-50 text-stone-900; }
 }
-
-.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 8px); }

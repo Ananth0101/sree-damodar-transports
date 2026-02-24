@@ -1,5 +1,9 @@
+export function cn(...classes: (string | undefined | false | null)[]): string {
+  return classes.filter(Boolean).join(' ');
+}
+
 export interface Consignment {
-  id: number;
+  id: string;
   consignment_no: string;
   date: string;
   from_location: string;
@@ -30,11 +34,11 @@ export interface Consignment {
   driver_payment_status: 'Pending' | 'Paid';
   commission: number;
   payment_ref: string;
-  created_at?: string;
+  createdAt?: number;
 }
 
 export interface Driver {
-  id: number;
+  id: string;
   name: string;
   phone: string;
   dl_number: string;
@@ -42,21 +46,21 @@ export interface Driver {
   vehicle_number: string;
   vehicle_type: string;
   address: string;
-  created_at?: string;
+  createdAt?: number;
 }
 
 export interface Customer {
-  id: number;
+  id: string;
   name: string;
   phone: string;
   gst_no: string;
   address: string;
   location_link: string;
-  created_at?: string;
+  createdAt?: number;
 }
 
 export interface FutureBooking {
-  id: number;
+  id: string;
   expected_date: string;
   customer_name: string;
   phone: string;
@@ -66,17 +70,13 @@ export interface FutureBooking {
   estimated_freight: number;
   notes: string;
   status: 'Pending' | 'Converted' | 'Cancelled';
-  created_at?: string;
+  createdAt?: number;
 }
 
 export const BANK_DETAILS = {
-  bankName: "CANARA BANK",
+  bankName:      "CANARA BANK",
   accountNumber: "040 410 1000 40 55",
-  ifsc: "CNRB 00 00 405",
-  branch: "Chamarajpet Branch",
+  ifsc:          "CNRB 00 00 405",
+  branch:        "Chamarajpet Branch",
   accountHolder: "SREE DAMODAR TRANSPORTS"
 };
-
-export function cn(...classes: (string | undefined | false | null)[]): string {
-  return classes.filter(Boolean).join(' ');
-}
