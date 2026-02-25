@@ -9,7 +9,7 @@ import {
   doc, onSnapshot, query, orderBy
 } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, db, signInWithGoogle, signOutUser } from './firebase';
+import { auth, db, signInWithGoogle, signOutUser, getRedirectResult } from './firebase';
 import { Consignment, Driver, Customer, FutureBooking, BANK_DETAILS, cn } from './types';
 import { generateLR } from './pdfService';
 
@@ -155,10 +155,12 @@ function LoginScreen({ onLogin, loading, error }: { onLogin: () => void; loading
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
           )}
-          {loading ? 'Signing in...' : 'Sign in with Google'}
+          {loading ? 'Redirecting to Google...' : 'Sign in with Google'}
         </button>
 
-        <p className="text-stone-400 text-xs mt-6">Only authorised staff can sign in. Data is shared across all devices in real-time.</p>
+        <p className="text-stone-400 text-xs mt-4">
+          On mobile: you will be redirected to Google, then brought back here automatically.
+        </p>
       </div>
       <p className="text-emerald-700 text-xs mt-6">v3.0 · Firebase Cloud · PWA</p>
     </div>
@@ -243,9 +245,15 @@ export default function App() {
 
   // ── Auth listener ───────────────────────────────────────────────────────────
   useEffect(() => {
+    // Handle redirect result from mobile sign-in FIRST
+    getRedirectResult(auth).catch(() => {
+      // Ignore errors here - onAuthStateChanged handles the result
+    });
+
     return onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setAuthLoading(false);
+      if (firebaseUser) setLoginLoading(false);
     });
   }, []);
 
