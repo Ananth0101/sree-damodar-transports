@@ -246,14 +246,26 @@ export default function App() {
   // ── Auth listener ───────────────────────────────────────────────────────────
   useEffect(() => {
     // Handle redirect result from mobile sign-in FIRST
-    getRedirectResult(auth).catch(() => {
-      // Ignore errors here - onAuthStateChanged handles the result
-    });
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          setLoginError(null);
+        }
+      })
+      .catch((error) => {
+        console.error('Redirect error:', error);
+        // Display the actual error to the user
+        setLoginError(error.message || 'Sign-in failed. Please try again.');
+        setAuthLoading(false);
+      });
 
     return onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setAuthLoading(false);
-      if (firebaseUser) setLoginLoading(false);
+      if (firebaseUser) {
+        setLoginLoading(false);
+        setLoginError(null);
+      }
     });
   }, []);
 

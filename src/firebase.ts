@@ -5,7 +5,9 @@ import {
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
-  signOut
+  signOut,
+  browserLocalPersistence,
+  setPersistence
 } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
@@ -23,16 +25,43 @@ export const auth = getAuth(app);
 export const db   = getFirestore(app);
 export const provider = new GoogleAuthProvider();
 
-// Use redirect on mobile/PWA, popup on desktop
-const isMobilePWA = () =>
-  /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-  window.matchMedia('(display-mode: standalone)').matches;
+// Set persistence to keep users logged in
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.error('Failed to set persistence:', error);
+});
+
+// Improved mobile/PWA detection
+const isMobileOrPWA = () => {
+  // Check if running as installed PWA
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                       (window.navigator as any).standalone === true;
+  
+  // Check if on mobile device
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+  
+  // Check if screen is mobile-sized
+  const isSmallScreen = window.innerWidth < 768;
+  
+  return isStandalone || isMobile || isSmallScreen;
+};
 
 export const signInWithGoogle = async () => {
-  if (isMobilePWA()) {
-    return signInWithRedirect(auth, provider);
+  try {
+    if (isMobileOrPWA()) {
+      console.log('Using redirect flow for mobile/PWA');
+      // Use redirect for mobile and PWA
+      return await signInWithRedirect(auth, provider);
+    } else {
+      console.log('Using popup flow for desktop');
+      // Use popup for desktop
+      return await signInWithPopup(auth, provider);
+    }
+  } catch (error: any) {
+    console.error('Sign-in error:', error);
+    throw error;
   }
-  return signInWithPopup(auth, provider);
 };
 
 export { getRedirectResult };
