@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, signInWithPopup, signOut, browserLocalPersistence, setPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -13,10 +13,20 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
 export const db = getFirestore(app);
 
-export const signInWithGoogle = () => signInWithPopup(auth, provider);
+// Use redirect on mobile, popup on desktop
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+export const signInWithGoogle = async () => {
+  await setPersistence(auth, browserLocalPersistence);
+  if (isMobile) {
+    return signInWithRedirect(auth, provider);
+  } else {
+    return signInWithPopup(auth, provider);
+  }
+};
+
 export const signOutUser = () => signOut(auth);
