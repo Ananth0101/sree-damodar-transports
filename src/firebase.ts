@@ -4,7 +4,7 @@ import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA7bxL4mp0mPaPe0Iy1miN8T7JzVKYFcv8",
-  authDomain: "sree-damodar-transports.firebaseapp.com",
+  authDomain: "sree-damodar-transports.onrender.com",
   projectId: "sree-damodar-transports",
   storageBucket: "sree-damodar-transports.firebasestorage.app",
   messagingSenderId: "918174781719",
