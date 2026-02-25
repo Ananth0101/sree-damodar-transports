@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Firebase Auth Debug</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 { color: #065f46; }
+    .info { 
+      background: #f0fdf4; 
+      padding: 15px; 
+      border-radius: 8px; 
+      margin: 10px 0;
+      border-left: 4px solid #10b981;
+    }
+    .error { 
+      background: #fef2f2; 
+      padding: 15px; 
+      border-radius: 8px; 
+      margin: 10px 0;
+      border-left: 4px solid #ef4444;
+    }
+    .code {
+      background: #f5f5f4;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+    button {
+      background: #065f46;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 5px 10px 0;
+    }
+    button:hover { background: #047857; }
+    .status { font-weight: bold; }
+    .good { color: #10b981; }
+    .bad { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Firebase Auth Debugger</h1>
+  <p>This page helps diagnose Google Sign-In issues.</p>
+
+  <div id="info"></div>
+
+  <button onclick="testAuth()">Test Google Sign-In</button>
+  <button onclick="checkConfig()">Check Configuration</button>
+  <button onclick="clearAndRetry()">Clear Cache & Retry</button>
+
+  <div id="results"></div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { 
+      getAuth, 
+      GoogleAuthProvider, 
+      signInWithRedirect,
+      getRedirectResult,
+      onAuthStateChanged
+    } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA7bxL4mp0mPaPe0Iy1miN8T7JzVKYFcv8",
+      authDomain: "sree-damodar-transports.firebaseapp.com",
+      projectId: "sree-damodar-transports",
+      storageBucket: "sree-damodar-transports.firebasestorage.app",
+      messagingSenderId: "918174781719",
+      appId: "1:918174781719:web:aefcca9d62fd6271cee752"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    window.auth = auth;
+    window.provider = provider;
+
+    // Show current configuration
+    function showInfo() {
+      const info = document.getElementById('info');
+      const currentURL = window.location.origin;
+      const authDomain = firebaseConfig.authDomain;
+      
+      info.innerHTML = `
+        <div class="info">
+          <strong>Current URL:</strong> <code>${currentURL}</code><br>
+          <strong>Firebase Auth Domain:</strong> <code>${authDomain}</code><br>
+          <strong>Project ID:</strong> <code>${firebaseConfig.projectId}</code><br>
+          <strong>User Agent:</strong> <code>${navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop'}</code>
+        </div>
+      `;
+    }
+
+    window.checkConfig = function() {
+      const results = document.getElementById('results');
+      const checks = [];
+      
+      // Check 1: Correct domain
+      const currentDomain = window.location.hostname;
+      const isCorrectDomain = currentDomain === 'sree-damodar-transports.onrender.com' || 
+                               currentDomain === 'localhost';
+      
+      checks.push(`
+        <div class="${isCorrectDomain ? 'info' : 'error'}">
+          <strong>Domain Check:</strong> 
+          <span class="status ${isCorrectDomain ? 'good' : 'bad'}">
+            ${isCorrectDomain ? '✅ GOOD' : '❌ WRONG DOMAIN'}
+          </span><br>
+          Current: <code>${currentDomain}</code><br>
+          ${!isCorrectDomain ? 'Expected: <code>sree-damodar-transports.onrender.com</code>' : ''}
+        </div>
+      `);
+
+      // Check 2: Firebase initialized
+      const firebaseOK = !!auth;
+      checks.push(`
+        <div class="${firebaseOK ? 'info' : 'error'}">
+          <strong>Firebase Status:</strong> 
+          <span class="status ${firebaseOK ? 'good' : 'bad'}">
+            ${firebaseOK ? '✅ Initialized' : '❌ Not initialized'}
+          </span>
+        </div>
+      `);
+
+      // Check 3: Auth domain matches
+      const authDomainMatch = firebaseConfig.authDomain === 'sree-damodar-transports.firebaseapp.com';
+      checks.push(`
+        <div class="${authDomainMatch ? 'info' : 'error'}">
+          <strong>Auth Domain:</strong> 
+          <span class="status ${authDomainMatch ? 'good' : 'bad'}">
+            ${authDomainMatch ? '✅ Correct' : '❌ Incorrect'}
+          </span><br>
+          <code>${firebaseConfig.authDomain}</code>
+        </div>
+      `);
+
+      results.innerHTML = '<h3>Configuration Check Results:</h3>' + checks.join('');
+    };
+
+    window.testAuth = async function() {
+      const results = document.getElementById('results');
+      results.innerHTML = '<div class="info">Starting sign-in flow...</div>';
+      
+      try {
+        console.log('Attempting signInWithRedirect...');
+        await signInWithRedirect(auth, provider);
+      } catch (error) {
+        console.error('Sign-in error:', error);
+        results.innerHTML = `
+          <div class="error">
+            <strong>❌ Sign-In Error:</strong><br>
+            <strong>Code:</strong> ${error.code}<br>
+            <strong>Message:</strong> ${error.message}<br>
+            <div class="code">${JSON.stringify(error, null, 2)}</div>
+          </div>
+        `;
+      }
+    };
+
+    window.clearAndRetry = function() {
+      localStorage.clear();
+      sessionStorage.clear();
+      alert('Cache cleared! Now click "Test Google Sign-In"');
+    };
+
+    // Check for redirect result on page load
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          document.getElementById('results').innerHTML = `
+            <div class="info">
+              <strong>✅ Sign-In Successful!</strong><br>
+              User: ${result.user.displayName}<br>
+              Email: ${result.user.email}
+            </div>
+          `;
+        }
+      })
+      .catch((error) => {
+        console.error('Redirect result error:', error);
+        document.getElementById('results').innerHTML = `
+          <div class="error">
+            <strong>❌ Redirect Error:</strong><br>
+            <strong>Code:</strong> ${error.code}<br>
+            <strong>Message:</strong> ${error.message}<br>
+            <strong>Details:</strong>
+            <div class="code">${JSON.stringify(error, null, 2)}</div>
+            
+            <h4>Common Solutions:</h4>
+            <ul>
+              <li><strong>auth/unauthorized-domain:</strong> Add your domain to Firebase Console → Authentication → Settings → Authorized domains</li>
+              <li><strong>auth/invalid-api-key:</strong> Check your Firebase config values</li>
+              <li><strong>auth/operation-not-allowed:</strong> Enable Google sign-in in Firebase Console</li>
+            </ul>
+          </div>
+        `;
+      });
+
+    // Listen for auth state
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log('User is signed in:', user.email);
+      } else {
+        console.log('User is signed out');
+      }
+    });
+
+    showInfo();
+  </script>
+</body>
+</html>
