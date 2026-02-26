@@ -2,8 +2,11 @@ export function cn(...classes: (string | undefined | false | null)[]): string {
   return classes.filter(Boolean).join(' ');
 }
 
+export type CompanyType = 'transports' | 'traders';
+
 export interface Consignment {
   id: string;
+  company: CompanyType;
   consignment_no: string;
   date: string;
   from_location: string;
@@ -27,6 +30,8 @@ export interface Consignment {
   handling_charges?: number;
   halting_charges?: number;
   gc_charges?: number;
+  sgst?: number;
+  cgst?: number;
   payment_status: 'Pending' | 'Paid' | 'Partial';
   driver_name: string;
   vehicle_number: string;
@@ -61,6 +66,7 @@ export interface Customer {
 
 export interface FutureBooking {
   id: string;
+  company: CompanyType;
   expected_date: string;
   customer_name: string;
   phone: string;
@@ -72,6 +78,35 @@ export interface FutureBooking {
   status: 'Pending' | 'Converted' | 'Cancelled';
   createdAt?: number;
 }
+
+export const COMPANY_INFO = {
+  transports: {
+    name: 'SREE DAMODAR TRANSPORTS',
+    shortName: 'SDT',
+    address: 'H.O. : 4th Main Road, New Tharagupet, Bangalore - 560 002',
+    phone1: '9880525597',
+    phone2: '8618422012',
+    gstin: '',
+    bankName: 'CANARA BANK',
+    bankBranch: 'Chamarajpet Branch',
+    accountNumber: '040 410 1000 40 55',
+    ifsc: 'CNRB 00 00 405',
+  },
+  traders: {
+    name: 'SREE DAMODAR TRADERS',
+    shortName: 'SDT',
+    address: 'H.O. : 4th Main Road, New Tharagupet, Bangalore - 560 002',
+    phone1: '8618422012',
+    phone2: '',
+    gstin: '29CHFPA3746M1Z2',
+    bankName: 'HDFC BANK',
+    bankBranch: 'Vijayanagar Branch',
+    accountNumber: '50200092213582',
+    ifsc: 'HDFC0001757',
+    route: 'BANGALORE - MANGALORE',
+    service: 'DAILY PARCELS SERVICE',
+  },
+};
 
 export const BANK_DETAILS = {
   bankName:      "CANARA BANK",

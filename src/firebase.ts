@@ -1,13 +1,11 @@
 import { initializeApp } from 'firebase/app';
 import {
   getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
-  browserLocalPersistence,
-  setPersistence
+  setPersistence,
+  browserLocalPersistence
 } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
@@ -20,49 +18,21 @@ const firebaseConfig = {
   appId:             "1:918174781719:web:aefcca9d62fd6271cee752"
 };
 
-const app         = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db   = getFirestore(app);
-export const provider = new GoogleAuthProvider();
+export const db = getFirestore(app);
 
-// Set persistence to keep users logged in
-setPersistence(auth, browserLocalPersistence).catch((error) => {
-  console.error('Failed to set persistence:', error);
-});
+// Keep users logged in even after closing browser
+setPersistence(auth, browserLocalPersistence);
 
-// Improved mobile/PWA detection
-const isMobileOrPWA = () => {
-  // Check if running as installed PWA
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                       (window.navigator as any).standalone === true;
-  
-  // Check if on mobile device
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  );
-  
-  // Check if screen is mobile-sized
-  const isSmallScreen = window.innerWidth < 768;
-  
-  return isStandalone || isMobile || isSmallScreen;
+// Sign in with email and password
+export const signInWithEmail = async (email: string, password: string) => {
+  return signInWithEmailAndPassword(auth, email, password);
 };
 
-export const signInWithGoogle = async () => {
-  try {
-    if (isMobileOrPWA()) {
-      console.log('Using redirect flow for mobile/PWA');
-      // Use redirect for mobile and PWA
-      return await signInWithRedirect(auth, provider);
-    } else {
-      console.log('Using popup flow for desktop');
-      // Use popup for desktop
-      return await signInWithPopup(auth, provider);
-    }
-  } catch (error: any) {
-    console.error('Sign-in error:', error);
-    throw error;
-  }
+// Create new user account (you'll use this once to create accounts for family members)
+export const createUser = async (email: string, password: string) => {
+  return createUserWithEmailAndPassword(auth, email, password);
 };
 
-export { getRedirectResult };
 export const signOutUser = () => signOut(auth);
